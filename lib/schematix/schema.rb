@@ -8,19 +8,33 @@ module Schematix
     end
 
     def initialize
-      @tables = []
+      @tables = Hash.new
     end
     attr_reader :tables
 
-    def table(name)
-      tables << Table.new(name)
+    def table(name, &block)
+      tables[name] = Table.new(name, &block)
     end
   end
 
   class Table
-    def initialize(name)
+    def initialize(name, &block)
       @name = name
+      @columns = Hash.new
+      self.instance_eval(&block) if block_given?
     end
-    attr_reader :name
+    attr_reader :name, :columns
+
+    def column(name, type, options={})
+      columns[name] = Column.new(name, type, options)
+    end
+  end
+
+  class Column
+    def initialize(name, type, options={})
+      @name = name
+      @type = type
+    end
+    attr_reader :name, :type
   end
 end

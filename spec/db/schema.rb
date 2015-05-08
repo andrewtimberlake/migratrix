@@ -1,4 +1,4 @@
-Schematix::Schama.define do
+Schematix::Schema.define do
   table :users do
     column :email,      :string, length: 100, null: false, unique: true
     column :name,       :string,              null: false
