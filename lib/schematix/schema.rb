@@ -36,5 +36,14 @@ module Schematix
       @type = type
     end
     attr_reader :name, :type
+
+    def sql_type
+      case type
+      when :string
+        'varchar'
+      else
+        type
+      end
+    end
   end
 end
