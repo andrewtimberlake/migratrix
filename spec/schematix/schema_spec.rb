@@ -48,8 +48,34 @@ module Schematix
       end
 
       context "the users table" do
+        let(:table) { schema.tables[:users] }
+
         it "has 2 columns" do
-          expect(schema.tables[:users].columns.size).to be(2)
+          expect(table.columns.size).to be(2)
+        end
+
+        it "has an id column" do
+          expect(table.columns[:id].type).to eq(:integer)
+        end
+
+        it "has an email column" do
+          expect(table.columns[:email].type).to eq(:string)
+        end
+      end
+
+      context "the articles table" do
+        let(:table) { schema.tables[:articles] }
+
+        it "has 2 columns" do
+          expect(table.columns.size).to be(2)
+        end
+
+        it "has an id column" do
+          expect(table.columns[:title].type).to eq(:string)
+        end
+
+        it "has an email column" do
+          expect(table.columns[:body].type).to eq(:text)
         end
       end
     end

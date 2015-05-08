@@ -37,7 +37,7 @@ module Schematix
       def each_column(table_name)
         rs = execute("SELECT column_name, data_type, character_maximum_length, is_nullable, column_default FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '#{table_name}' ORDER BY ordinal_position")
         rs.each do |row|
-          yield Hash.new(name: row['column_name'], type: row['data_type'])
+          yield Hash(name: row['column_name'], type: sql_to_type(row['data_type']))
         end
       end
 
@@ -52,6 +52,15 @@ module Schematix
           'varchar'
         else
           type
+        end
+      end
+
+      def sql_to_type(type)
+        case type
+        when 'character varying'
+          :string
+        else
+          type.to_sym
         end
       end
     end

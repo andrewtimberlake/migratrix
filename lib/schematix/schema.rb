@@ -37,7 +37,7 @@ module Schematix
     attr_reader :name, :columns
 
     def column(name, type, options={})
-      columns[name] = Column.new(name, type, options)
+      columns[name.to_sym] = Column.new(name, type, options)
     end
   end
 
