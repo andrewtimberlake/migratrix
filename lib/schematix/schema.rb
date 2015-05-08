@@ -7,13 +7,24 @@ module Schematix
       schema
     end
 
+    def self.dump(adapter)
+      schema = Schema.new
+      adapter.each_table do |name|
+        table = schema.table name
+        adapter.each_column(name) do |column|
+          table.column column[:name], column[:type]
+        end
+      end
+      schema
+    end
+
     def initialize
       @tables = Hash.new
     end
     attr_reader :tables
 
     def table(name, &block)
-      tables[name] = Table.new(name, &block)
+      tables[name.to_sym] = Table.new(name, &block)
     end
   end
 

@@ -17,11 +17,11 @@ module Schematix
 
       it "creates the table" do
         expect { db.create_table schema.tables[:users] }.not_to raise_error
-        db.connection.exec("DROP TABLE users")
+        db.execute("DROP TABLE users")
       end
 
       it "drops the table" do
-        db.connection.exec("CREATE TABLE users ()")
+        db.execute("CREATE TABLE users ()")
         expect { db.drop_table schema.tables[:users] }.not_to raise_error
       end
     end
