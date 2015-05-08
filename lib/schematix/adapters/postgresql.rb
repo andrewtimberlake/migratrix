@@ -13,7 +13,7 @@ module Schematix
         sql = "CREATE TABLE #{table.name} (\n"
         columns_sql = []
         table.columns.values.each do |column|
-          columns_sql << [" ", column.name, column.sql_type].join(' ')
+          columns_sql << [" ", column.name, type_to_sql(column.type)].join(' ')
         end
         sql << columns_sql.join(",\n")
         sql << "\n);"
@@ -43,6 +43,16 @@ module Schematix
 
       def execute(sql)
         connection.exec sql
+      end
+
+      private
+      def type_to_sql(type)
+        case type
+        when :string
+          'varchar'
+        else
+          type
+        end
       end
     end
   end
