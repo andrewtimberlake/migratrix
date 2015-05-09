@@ -15,9 +15,12 @@ module Schematix
       }
       let(:db) { Schematix::Adapters::Postgresql.new(dbname: 'schematix') }
 
+      before do
+        db.execute("DROP TABLE IF EXISTS users")
+      end
+
       it "creates the table" do
         expect { db.create_table schema.tables[:users] }.not_to raise_error
-        db.execute("DROP TABLE users")
       end
 
       it "drops the table" do

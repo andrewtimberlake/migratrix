@@ -36,11 +36,8 @@ module Schematix
       let(:schema) { Schematix::Schema.dump(adapter) }
 
       before do
+        adapter.execute("DROP TABLE IF EXISTS users; DROP TABLE IF EXISTS articles")
         adapter.execute("CREATE TABLE users (id int, email varchar(100)); CREATE TABLE articles (title varchar, body text);")
-      end
-
-      after do
-        adapter.execute("DROP TABLE users; DROP TABLE articles")
       end
 
       it "has 2 tables" do
