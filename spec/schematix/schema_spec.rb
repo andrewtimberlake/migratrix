@@ -76,24 +76,12 @@ module Schematix
     end
 
     context "migrating a schema" do
-      let(:expected_schema) {
-        Schematix::Schema.define do
-          table :users do
-            column :id, :integer
-            column :email, :string
-            column :username, :string
-          end
-        end
-      }
-
-      before do
-        adapter.execute("CREATE TABLE users (id int, email varchar(100));")
-        Schematix::Schema.migrate(adapter, expected_schema)
-      end
-
-      it "adds the missing columns" do
-        schema = Schematix::Schema.dump(adapter)
-        expect(schema.tables[:users].columns[:username].type).to be(:string)
+      it "calls the migrator" do
+        expected_schema = double(:expected_schema)
+        migrator = double(:migrator)
+        expect(Migrator).to receive(:new).with(adapter) { migrator }
+        expect(migrator).to receive(:migrate_to).with(expected_schema)
+        Schema.migrate(adapter, expected_schema)
       end
     end
   end

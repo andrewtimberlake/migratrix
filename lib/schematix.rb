@@ -5,5 +5,6 @@ module Schematix
   require 'schematix/collection'
   require 'schematix/table'
   require 'schematix/column'
+  require 'schematix/migrator'
   require 'schematix/schema'
 end
