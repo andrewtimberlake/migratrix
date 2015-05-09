@@ -35,7 +35,7 @@ module Schematix
       let(:schema) { Schematix::Schema.dump(adapter) }
 
       before do
-        adapter.execute("CREATE TABLE users (id int, email varchar(100)); CREATE TABLE articles (title varchar, body text);")
+        adapter.execute("CREATE TABLE users (id int, email varchar(100)); CREATE TABLE articles (title varchar not null, body text default '');")
       end
 
       it "has 2 tables" do
@@ -65,12 +65,14 @@ module Schematix
           expect(table.columns.size).to be(2)
         end
 
-        it "has an id column" do
+        it "has a title column" do
           expect(table.columns[:title].type).to eq(:string)
+          expect(table.columns[:title].nullable).to be(false)
         end
 
-        it "has an email column" do
+        it "has a body column" do
           expect(table.columns[:body].type).to eq(:text)
+          expect(table.columns[:body].default).to eq('')
         end
       end
     end

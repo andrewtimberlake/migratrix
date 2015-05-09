@@ -27,7 +27,7 @@ module Schematix
     it "can iterate the collection" do
       collection << Table.new(:users)
       collection << Table.new(:articles)
-      expect(collection.map(&:name)).to eq([:users, :articles])
+      expect(collection.map(&:name)).to eq(%w[users articles])
     end
   end
 end

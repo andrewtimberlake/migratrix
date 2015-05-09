@@ -17,6 +17,10 @@ module Schematix
             current_column = current_table.columns[expected_column.name]
             if current_column.nil?
               adapter.add_column current_table, expected_column
+            else
+              if current_column != expected_column
+                adapter.change_column(current_table, current_column, expected_column)
+              end
             end
           end
         end

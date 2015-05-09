@@ -18,7 +18,7 @@ module Schematix
       end
     }
 
-    context "Adding missing tables" do
+    context "Adding a missing table" do
       before do
         expect(current_schema.tables[:users]).to be_nil
         Schematix::Migrator.new(adapter).migrate_to(expected_schema)
@@ -29,7 +29,7 @@ module Schematix
       end
     end
 
-    context "Dropping unneeded tables" do
+    context "Dropping an unneeded table" do
       before do
         adapter.execute("CREATE TABLE articles (id int, email varchar);")
         Schematix::Migrator.new(adapter).migrate_to(expected_schema)
@@ -40,7 +40,7 @@ module Schematix
       end
     end
 
-    context "Adding missing columns" do
+    context "Adding a missing column" do
       before do
         adapter.execute("CREATE TABLE users (id int, email varchar);")
         Schematix::Migrator.new(adapter).migrate_to(expected_schema)
@@ -51,7 +51,7 @@ module Schematix
       end
     end
 
-    context "Removing unneeded columns" do
+    context "Removing an unneeded column" do
       before do
         adapter.execute("CREATE TABLE users (id int, email varchar, username varchar, password varchar);")
         Schematix::Migrator.new(adapter).migrate_to(expected_schema)
@@ -59,6 +59,68 @@ module Schematix
 
       it "removes the extra column" do
         expect(current_schema.tables[:users].columns[:password]).to be_nil
+      end
+    end
+
+    context "Changing a column type" do
+      let(:expected_schema) {
+        Schematix::Schema.define do
+          table :articles do
+            column :title, :string
+            column :body, :text
+          end
+        end
+      }
+      before do
+        adapter.execute("CREATE TABLE articles (title varchar, body varchar)")
+        Schematix::Migrator.new(adapter).migrate_to(expected_schema)
+      end
+
+      it "changes the column type" do
+        expect(current_schema.tables[:articles].columns[:body].type).to eq(:text)
+      end
+    end
+
+    context "Changing a column nullability" do
+      let(:expected_schema) {
+        Schematix::Schema.define do
+          table :articles do
+            column :title, :string, null: false
+            column :body, :text
+          end
+        end
+      }
+      before do
+        adapter.execute("CREATE TABLE articles (title varchar null, body varchar)")
+        expect(current_schema.tables[:articles].columns[:title].nullable).to be(true)
+        Schematix::Migrator.new(adapter).migrate_to(expected_schema)
+      end
+
+      it "changes the column nullablity" do
+        expect(current_schema.tables[:articles].columns[:title].nullable).to be(false)
+      end
+    end
+
+    context "Changing a column default" do
+      let(:expected_schema) {
+        Schematix::Schema.define do
+          table :stats do
+            column :counter1, :integer, null: false, default: 0
+            column :counter2, :integer, null: false
+          end
+        end
+      }
+      before do
+        adapter.execute("CREATE TABLE stats (counter1 integer, counter2 integer NOT NULL DEFAULT 0)")
+        Schematix::Migrator.new(adapter).migrate_to(expected_schema)
+      end
+
+      it "adds a missing default" do
+        expect(current_schema.tables[:stats].columns[:counter1].default).to eq(0)
+      end
+
+      it "removes a default" do
+        expect(current_schema.tables[:stats].columns[:counter2].default).to be_nil
       end
     end
   end

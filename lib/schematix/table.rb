@@ -2,7 +2,7 @@
 module Schematix
   class Table
     def initialize(name, &block)
-      @name = name
+      @name = name.to_s
       @columns = Collection.new
       self.instance_eval(&block) if block_given?
     end

@@ -39,6 +39,28 @@ module Schematix
         execute sql
       end
 
+      def change_column(table, current_column, expected_column)
+        sql = "ALTER TABLE #{table.name} "
+        changes = []
+        if current_column.type != expected_column.type
+          changes << "TYPE #{type_to_sql(expected_column.type)}"
+        end
+        if current_column.nullable != expected_column.nullable
+          changes << "#{current_column.nullable ? 'SET' : 'DROP'} NOT NULL"
+        end
+        if current_column.default != expected_column.default
+          if expected_column.default.nil?
+            changes << "DROP DEFAULT"
+          else
+            changes << "SET DEFAULT #{default_to_sql(expected_column.default)}"
+          end
+        end
+        changes.map!{|ch| "ALTER COLUMN #{current_column.name} #{ch}" }
+        sql << changes.join(', ')
+
+        execute sql
+      end
+
       def each_table
         rs = execute("SELECT table_name FROM information_schema.columns WHERE table_schema = 'public' GROUP BY table_name ORDER BY table_name")
         rs.each do |row|
@@ -49,7 +71,8 @@ module Schematix
       def each_column(table_name)
         rs = execute("SELECT column_name, data_type, character_maximum_length, is_nullable, column_default FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '#{table_name}' ORDER BY ordinal_position")
         rs.each do |row|
-          yield Hash(name: row['column_name'], type: sql_to_type(row['data_type']))
+          type = sql_to_type(row['data_type'])
+          yield Hash(name: row['column_name'], type: type, nullable: row['is_nullable'] == 'YES', default: parse_default(row['column_default'], type))
         end
       end
 
@@ -73,6 +96,24 @@ module Schematix
           :string
         else
           type.to_sym
+        end
+      end
+
+      def parse_default(default_string, type)
+        return nil if default_string.nil?
+        case type
+        when :string, :text
+          default_string.sub(/\A'(.*?)'::.+\z/, '\1')
+        when :integer
+          default_string.to_i
+        end
+      end
+
+      def default_to_sql(default)
+        if default.is_a?(String)
+          "'#{default}'::text"
+        else
+          default.to_s
         end
       end
     end
