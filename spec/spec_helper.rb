@@ -92,6 +92,14 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 =end
 
+  def adapter
+    @adapter ||= Schematix::Adapters::Postgresql.new(dbname: 'schematix')
+  end
+
+  config.before do
+    Schematix::Schema.migrate(adapter, Schematix::Schema.define)
+  end
+
   def spec_require(schema_file)
     require_relative "../lib/schematix/#{schema_file}"
   end

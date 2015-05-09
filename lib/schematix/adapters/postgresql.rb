@@ -27,6 +27,12 @@ module Schematix
         execute sql
       end
 
+      def add_column(table, column)
+        sql = "ALTER TABLE #{table.name} ADD COLUMN #{column.name} #{type_to_sql(column.type)};"
+
+        execute sql
+      end
+
       def each_table
         rs = execute("SELECT table_name FROM information_schema.columns WHERE table_schema = 'public' GROUP BY table_name ORDER BY table_name")
         rs.each do |row|

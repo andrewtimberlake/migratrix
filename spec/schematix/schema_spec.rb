@@ -32,11 +32,9 @@ module Schematix
     end
 
     context "dumping a schema" do
-      let(:adapter) { Schematix::Adapters::Postgresql.new(dbname: 'schematix') }
       let(:schema) { Schematix::Schema.dump(adapter) }
 
       before do
-        adapter.execute("DROP TABLE IF EXISTS users; DROP TABLE IF EXISTS articles")
         adapter.execute("CREATE TABLE users (id int, email varchar(100)); CREATE TABLE articles (title varchar, body text);")
       end
 
@@ -74,6 +72,28 @@ module Schematix
         it "has an email column" do
           expect(table.columns[:body].type).to eq(:text)
         end
+      end
+    end
+
+    context "migrating a schema" do
+      let(:expected_schema) {
+        Schematix::Schema.define do
+          table :users do
+            column :id, :integer
+            column :email, :string
+            column :username, :string
+          end
+        end
+      }
+
+      before do
+        adapter.execute("CREATE TABLE users (id int, email varchar(100));")
+        Schematix::Schema.migrate(adapter, expected_schema)
+      end
+
+      it "adds the missing columns" do
+        schema = Schematix::Schema.dump(adapter)
+        expect(schema.tables[:users].columns[:username].type).to be(:string)
       end
     end
   end

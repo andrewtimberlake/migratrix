@@ -6,5 +6,9 @@ module Schematix
       @type = type
     end
     attr_reader :name, :type
+
+    def inspect
+      "#<Column #{name}>"
+    end
   end
 end

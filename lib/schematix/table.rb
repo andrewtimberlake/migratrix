@@ -11,5 +11,9 @@ module Schematix
     def column(name, type, options={})
       columns << Column.new(name, type, options)
     end
+
+    def inspect
+      "#<Table #{name}>"
+    end
   end
 end
