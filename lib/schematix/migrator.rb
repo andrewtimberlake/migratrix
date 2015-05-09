@@ -21,6 +21,19 @@ module Schematix
           end
         end
       end
+      expected_schema.tables.each do |expected_table|
+        current_table = current_schema.tables[expected_table.name]
+        if current_table.nil?
+          adapter.create_table(expected_table)
+        else
+          current_table.columns.each do |current_column|
+            expected_column = expected_table.columns[current_column.name]
+            if expected_column.nil?
+              adapter.drop_column current_table, current_column
+            end
+          end
+        end
+      end
     end
   end
 end

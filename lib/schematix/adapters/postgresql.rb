@@ -33,6 +33,12 @@ module Schematix
         execute sql
       end
 
+      def drop_column(table, column)
+        sql = "ALTER TABLE #{table.name} DROP COLUMN #{column.name};"
+
+        execute sql
+      end
+
       def each_table
         rs = execute("SELECT table_name FROM information_schema.columns WHERE table_schema = 'public' GROUP BY table_name ORDER BY table_name")
         rs.each do |row|
