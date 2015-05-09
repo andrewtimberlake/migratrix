@@ -12,7 +12,7 @@ module Schematix
       def create_table(table)
         sql = "CREATE TABLE #{table.name} (\n"
         columns_sql = []
-        table.columns.values.each do |column|
+        table.columns.each do |column|
           columns_sql << [" ", column.name, type_to_sql(column.type)].join(' ')
         end
         sql << columns_sql.join(",\n")

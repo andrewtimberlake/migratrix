@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+require 'schematix/collection'
+
 module Schematix
   class Schema
     def self.define(&block)
@@ -19,25 +21,25 @@ module Schematix
     end
 
     def initialize
-      @tables = Hash.new
+      @tables = Collection.new
     end
     attr_reader :tables
 
     def table(name, &block)
-      tables[name.to_sym] = Table.new(name, &block)
+      tables << Table.new(name, &block)
     end
   end
 
   class Table
     def initialize(name, &block)
       @name = name
-      @columns = Hash.new
+      @columns = Collection.new
       self.instance_eval(&block) if block_given?
     end
     attr_reader :name, :columns
 
     def column(name, type, options={})
-      columns[name.to_sym] = Column.new(name, type, options)
+      columns << Column.new(name, type, options)
     end
   end
 
