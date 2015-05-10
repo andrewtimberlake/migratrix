@@ -3,4 +3,7 @@ source "https://rubygems.org"
 
 gem "pg"
 
-gem "rspec"
+group :development do
+  gem "rspec"
+  gem "simplecov"
+end
