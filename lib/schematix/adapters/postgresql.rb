@@ -21,6 +21,10 @@ module Schematix
         execute sql
       end
 
+      def create_view(view)
+        execute "CREATE VIEW #{view.name} AS #{view.sql}"
+      end
+
       def drop_table(table)
         sql = "DROP TABLE #{table.name};"
 
@@ -61,10 +65,17 @@ module Schematix
         execute sql
       end
 
+      def drop_view(view)
+        sql = "DROP VIEW #{view.name};"
+
+        execute sql
+      end
+
+
       def each_table
-        rs = execute("SELECT table_name FROM information_schema.columns WHERE table_schema = 'public' GROUP BY table_name ORDER BY table_name")
+        rs = execute("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename")
         rs.each do |row|
-          yield row['table_name']
+          yield row['tablename']
         end
       end
 
@@ -73,6 +84,13 @@ module Schematix
         rs.each do |row|
           type = sql_to_type(row['data_type'])
           yield Hash(name: row['column_name'], type: type, nullable: row['is_nullable'] == 'YES', default: parse_default(row['column_default'], type))
+        end
+      end
+
+      def each_view
+        rs = execute("SELECT viewname, definition FROM pg_views WHERE schemaname = 'public' ORDER BY viewname")
+        rs.each do |row|
+          yield Hash(name: row['viewname'], source: row['definition'])
         end
       end
 

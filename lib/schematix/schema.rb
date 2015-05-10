@@ -15,6 +15,9 @@ module Schematix
           table.column column[:name], column[:type], null: column[:nullable], default: column[:default]
         end
       end
+      adapter.each_view do |view|
+        schema.view view[:name], view[:source]
+      end
       schema
     end
 
@@ -24,11 +27,16 @@ module Schematix
 
     def initialize
       @tables = Collection.new
+      @views  = Collection.new
     end
-    attr_reader :tables
+    attr_reader :tables, :views
 
     def table(name, &block)
       tables << Table.new(name, &block)
+    end
+
+    def view(name, sql)
+      views << View.new(name, sql)
     end
   end
 end

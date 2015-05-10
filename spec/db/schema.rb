@@ -14,4 +14,8 @@ Schematix::Schema.define do
     column :published_at, :timestamp, null: false, default: :now
     column :author_id,    :integer,   null: false, reference: [:users, :id]
   end
+
+  view :articles_by_user, <<SQL
+SELECT a.title, a.body, u.name FROM articles a INNER JOIN users u ON a.author_id = u.id
+SQL
 end

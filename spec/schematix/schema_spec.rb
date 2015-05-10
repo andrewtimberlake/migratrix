@@ -35,7 +35,8 @@ module Schematix
       let(:schema) { Schematix::Schema.dump(adapter) }
 
       before do
-        adapter.execute("CREATE TABLE users (id int, email varchar(100)); CREATE TABLE articles (title varchar not null, body text default '');")
+        adapter.execute("CREATE TABLE users (id int, name varchar, email varchar(100)); CREATE TABLE articles (title varchar not null, body text default '', author_id integer);")
+        adapter.execute("CREATE VIEW articles_by_author AS SELECT a.title, a.body, u.name FROM articles a INNER JOIN users u ON a.author_id = u.id")
       end
 
       it "has 2 tables" do
@@ -46,7 +47,7 @@ module Schematix
         let(:table) { schema.tables[:users] }
 
         it "has 2 columns" do
-          expect(table.columns.size).to be(2)
+          expect(table.columns.size).to be(3)
         end
 
         it "has an id column" do
@@ -62,7 +63,7 @@ module Schematix
         let(:table) { schema.tables[:articles] }
 
         it "has 2 columns" do
-          expect(table.columns.size).to be(2)
+          expect(table.columns.size).to be(3)
         end
 
         it "has a title column" do
@@ -74,6 +75,10 @@ module Schematix
           expect(table.columns[:body].type).to eq(:text)
           expect(table.columns[:body].default).to eq('')
         end
+      end
+
+      it "has 1 view" do
+        expect(schema.views[:articles_by_author]).not_to be_nil
       end
     end
 
