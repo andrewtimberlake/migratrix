@@ -7,11 +7,15 @@ module Schematix
     attr_reader :adapter
 
     def migrate_to(expected_schema)
-      current_schema = Schema.dump(adapter)
-      current_schema.tables.each do |current_table|
-        expected_table = expected_schema.tables[current_table.name]
-        if expected_table.nil?
-          adapter.drop_table(current_table)
+      add_missing(expected_schema)
+      drop_unneeded(expected_schema)
+    end
+
+    def add_missing(expected_schema)
+      expected_schema.tables.each do |expected_table|
+        current_table = current_schema.tables[expected_table.name]
+        if current_table.nil?
+          adapter.create_table(expected_table)
         else
           expected_table.columns.each do |expected_column|
             current_column = current_table.columns[expected_column.name]
@@ -25,10 +29,14 @@ module Schematix
           end
         end
       end
-      expected_schema.tables.each do |expected_table|
-        current_table = current_schema.tables[expected_table.name]
-        if current_table.nil?
-          adapter.create_table(expected_table)
+    end
+
+    def drop_unneeded(expected_schema)
+      current_schema.tables.each do |current_table|
+        expected_table = expected_schema.tables[current_table.name]
+
+        if expected_table.nil?
+          adapter.drop_table(current_table)
         else
           current_table.columns.each do |current_column|
             expected_column = expected_table.columns[current_column.name]
@@ -38,6 +46,11 @@ module Schematix
           end
         end
       end
+    end
+
+    private
+    def current_schema
+      @current_schema ||= Schema.dump(adapter)
     end
   end
 end
