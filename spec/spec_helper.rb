@@ -101,8 +101,7 @@ RSpec.configure do |config|
 =end
 
   def adapter
-    require 'schematix/adapters/postgresql'
-    @adapter ||= Schematix::Adapters::Postgresql.new(dbname: 'schematix')
+    @adapter ||= Schematix::Adapter.for(:postgresql).new(dbname: 'schematix')
   end
 
   config.before do

@@ -8,4 +8,7 @@ module Schematix
   require 'schematix/view'
   require 'schematix/migrator'
   require 'schematix/schema'
+
+  require 'schematix/adapter'
+  Adapter.register :postgresql, 'Postgresql'
 end
